@@ -1,0 +1,66 @@
+<!DOCTYPE html>>
+<html lang="th">
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            canvas {border: 1px solid black;}
+        </style>
+    </head>
+    <body>
+        <canvas id="solar" width="800" height="600"></canvas>
+        <script>
+            const canvas = document.getElementById('solar');
+            const ctx = canvas.getContext('2d');
+            
+            class Planet {
+                constructor(x, y, radius, color, speed) {
+                    this.x = x;
+                    this.y = y;
+                    this.radius = radius;
+                    this.color = color;
+                    this.angle = 0;
+                    this.speed = speed;
+                    this.orbitRadius = x - canvas.width / 2;
+                }
+
+                update() {
+                    this.angle += this.speed; //this.angle = this.angle + this.speed
+                    this.x = canvas.width / 2 + Math.cos(this.angle) * this.orbitRadius;
+                    this.y = canvas.height / 2 + Math.sin(this.angle) * this.orbitRadius;
+                }
+                
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.closePath();
+
+                    ctx.beginPath();
+                    ctx.arc(canvas.width / 2, canvas.height / 2, this.orbitRadius, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(29, 245, 48, 0.8)';
+                    ctx.stroke();
+                }
+            }
+
+            const sun = new Planet(canvas.width / 2, canvas.height / 2, 30, 'yellow', 0)
+            const earth = new Planet(canvas.width / 2 + 200, canvas.height / 2, 10, 'blue', 0.02)
+            const mars = new Planet(canvas.width / 2 + 300, canvas.height / 2, 8, 'red', 0.015)
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                sun.draw();
+
+                earth.update();
+                earth.draw();
+
+                mars.update();
+                mars.draw();
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        </script>
+    </body>
+</html>

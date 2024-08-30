@@ -1,0 +1,101 @@
+<!DOCTYPE html>>
+<html lang="th">
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            canvas {border: 1px solid black;}
+            #info { position: absolute; 
+                    background: rgb(0, 0, 0); 
+                    color: white; 
+                    padding: 5px; 
+                    display: none;}
+        </style>
+    </head>
+    <body>
+        <canvas id="solarSystem" width="1000" height="800"></canvas>
+        <div id="info"></div>
+        <script>
+            const canvas = document.getElementById('solarSystem');
+            const ctx = canvas.getContext('2d');
+            const infoDiv = document.getElementById('info');
+    
+            class Planet {
+                constructor(name, radius, color, orbitRadius, speed, info) {
+                    this.name = name;
+                    this.radius = radius;
+                    this.color = color;
+                    this.orbitRadius = orbitRadius;
+                    this.speed = speed;
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.info = info;
+                    this.x = 0;
+                    this.y = 0;
+                }
+
+                update() {
+                    this.angle += this.speed; //this.angle = this.angle + this.speed
+                    this.x = canvas.width / 2 + Math.cos(this.angle) * this.orbitRadius;
+                    this.y = canvas.height / 2 + Math.sin(this.angle) * this.orbitRadius;
+                }
+                
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.closePath();
+
+                    ctx.beginPath();
+                    ctx.arc(canvas.width / 2, canvas.height / 2, this.orbitRadius, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(29, 245, 48, 0.8)';
+                    ctx.stroke();
+                }
+
+                isMouseOver (mouseX, mouseY) {
+                    const dx = this.x - mouseX
+                    const dy = this.y - mouseY
+                    return Math.sqrt(dx*dx + dy*dy) <= this.radius; //calculate area of this.planet
+                }
+            }
+
+            const planetBodies = [
+                new Planet("Sun", 30, "yellow", 0, 0, "Sun: center of solar system"),
+                new Planet("Murcury", 3, "gray", 50, 0.02, "Murcury: nearest planet to sun"),
+                new Planet("Venus", 6, "orange", 80, 0.015, "Venus: the hottest planet in solorsystem"),
+                new Planet("Earth", 6, "blue", 110, 0.01, "Earth: the blue planet")
+                
+
+            ]
+            function animate() {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                planetBodies.forEach(body => {
+                    body.update();
+                    body.draw();
+                })
+
+                requestAnimationFrame(animate);
+            }
+
+            canvas.addEventListener('mousemove', (event) => {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left; 
+                const mouseY = event.clientY - rect.top;
+
+                let hoveredBody = planetBodies.find(body => body.isMouseOver(mouseX, mouseY));
+
+                if (hoveredBody) {
+                    infoDiv.style.display = 'block';
+                    infoDiv.style.left = event.clientX + 10 + 'px';
+                    infoDiv.style.top = event.clientY + 10 + 'px';
+                    infoDiv.textContent = hoveredBody.info;
+                } else {
+                    infoDiv.style.display = 'none';
+                }
+            });
+            
+            animate();
+        </script>
+    </body>
+</html>
